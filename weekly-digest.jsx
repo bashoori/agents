@@ -52,6 +52,13 @@ const EMAILS = [
     action: "URGENT — decide by today: accept or decline the calendar invite for tomorrow Thu May 28 at 6:30 PM PDT.",
     reason: "Event is TOMORROW — networking in AI/tech directly supports your job search and is time-sensitive.",
     draftReply: "Hi,\n\nThank you for the invitation to the Applied AI – System Design Club session! I'd love to join this Thursday.\n\nLooking forward to connecting with the team.\n\nBest,\nBita",
+    calendarEvent: {
+      title: "Applied AI – System Design Club",
+      start: "20260528T183000",
+      end: "20260528T193000",
+      location: "Vancouveranalyticsboard (Online)",
+      description: "Applied AI and system design club session hosted by ELTF / Vancouver Analytics Board.",
+    },
   },
   {
     id: "19e64fbe97937558",
@@ -65,6 +72,13 @@ const EMAILS = [
     action: "Pick your volunteer timing slot NOW using the link in the email. Also consider sharing the invite with your network.",
     reason: "Action required before the summit — timing slot not picked yet, and the event is next week.",
     draftReply: null,
+    calendarEvent: {
+      title: "WomenWhoCode Summit 2026 – Volunteer (Social Media)",
+      start: "20260602T090000",
+      end: "20260604T180000",
+      location: "New York, NY (+ Virtual)",
+      description: "Volunteering at WomenWhoCode Summit as social media volunteer. Capture sessions, speakers and moments. Check timing slot link in email. Contact: hello@womenwhocode.com",
+    },
   },
   {
     id: "19e604b9fe52f2e9",
@@ -78,6 +92,13 @@ const EMAILS = [
     action: "Select your timing slot immediately — this is the second reminder and the event is next week.",
     reason: "Repeated reminders mean this is time-sensitive. Not selecting a slot may remove you from the volunteer roster.",
     draftReply: null,
+    calendarEvent: {
+      title: "WomenWhoCode Summit 2026 – Volunteer (Social Media)",
+      start: "20260602T090000",
+      end: "20260604T180000",
+      location: "New York, NY (+ Virtual)",
+      description: "Volunteering at WomenWhoCode Summit as social media volunteer. Capture sessions, speakers and moments. Contact: hello@womenwhocode.com",
+    },
   },
   {
     id: "19e6a273687e97f3",
@@ -143,6 +164,13 @@ const EMAILS = [
     action: "Add to calendar. Venue: Room 136, Coquitlam City Centre Library.",
     reason: "Community wellness event relevant to your personal well-being and community engagement.",
     draftReply: null,
+    calendarEvent: {
+      title: "Yoga for Beginners / Upa Yoga",
+      start: "20260530T100000",
+      end: "20260530T110000",
+      location: "Room 136, Coquitlam City Centre Library, Coquitlam, BC",
+      description: "Yoga for Beginners / Upa Yoga session. Registered via Eventbrite / Isha USA.",
+    },
   },
   {
     id: "19e69f5c2eba9d6e",
@@ -172,13 +200,27 @@ const EMAILS = [
   },
 ];
 
+// ── Soft gray light theme tokens ─────────────────────────────────────────────
+const T = {
+  pageBg:    "#f1f5f9",
+  cardBg:    "#ffffff",
+  cardBorder:"#e2e8f0",
+  innerBg:   "#f8fafc",
+  innerBorder:"#e2e8f0",
+  textPrimary:  "#0f172a",
+  textSecondary:"#475569",
+  textMuted:    "#94a3b8",
+  divider:      "#e8edf3",
+  scrollThumb:  "#cbd5e1",
+};
+
 const CAT = {
-  "🔥 Job Search":              { color: "#f97316", bg: "#f9731610", border: "#f9731635" },
-  "⚠️ Security":                { color: "#ef4444", bg: "#ef444410", border: "#ef444435" },
-  "🤝 Volunteering":            { color: "#22c55e", bg: "#22c55e10", border: "#22c55e35" },
-  "🤝 Volunteering & Community":{ color: "#22c55e", bg: "#22c55e10", border: "#22c55e35" },
-  "📅 Events & Networking":     { color: "#3b82f6", bg: "#3b82f610", border: "#3b82f635" },
-  "🏠 Finance & Personal":      { color: "#6366f1", bg: "#6366f110", border: "#6366f135" },
+  "🔥 Job Search":              { color: "#ea6e1e", bg: "#fff4ec", border: "#fdd9bf" },
+  "⚠️ Security":                { color: "#dc2626", bg: "#fef2f2", border: "#fecaca" },
+  "🤝 Volunteering":            { color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+  "🤝 Volunteering & Community":{ color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+  "📅 Events & Networking":     { color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
+  "🏠 Finance & Personal":      { color: "#7c3aed", bg: "#f5f3ff", border: "#ddd6fe" },
 };
 const IMP = { HIGH: "🔴", MEDIUM: "🟡", LOW: "⚪" };
 const IMP_ORDER = { HIGH: 0, MEDIUM: 1, LOW: 2 };
@@ -187,57 +229,101 @@ function fmt(d) {
   return new Date(d).toLocaleDateString("en-CA", { month: "short", day: "numeric" });
 }
 
+function addToGoogleCalendar(ev) {
+  const base = "https://calendar.google.com/calendar/render?action=TEMPLATE";
+  const params = new URLSearchParams({
+    text: ev.title,
+    dates: `${ev.start}/${ev.end}`,
+    details: ev.description,
+    location: ev.location,
+  });
+  window.open(`${base}&${params.toString()}`, "_blank");
+}
+
+function CalendarButton({ ev }) {
+  const [added, setAdded] = useState(false);
+  return (
+    <button
+      onClick={() => { addToGoogleCalendar(ev); setAdded(true); setTimeout(() => setAdded(false), 3000); }}
+      style={{
+        display: "flex", alignItems: "center", gap: 8,
+        background: added ? "#f0fdf4" : "#f0fdf4",
+        border: `1px solid ${added ? "#86efac" : "#bbf7d0"}`,
+        borderRadius: 8, padding: "9px 14px", cursor: "pointer",
+        width: "100%", marginTop: 10, transition: "all 0.2s",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+      }}
+    >
+      <span style={{ fontSize: 15 }}>{added ? "✅" : "📅"}</span>
+      <div style={{ textAlign: "left" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: added ? "#15803d" : "#16a34a", fontFamily: "monospace", letterSpacing: "0.04em" }}>
+          {added ? "Opening Google Calendar…" : "Add to Google Calendar"}
+        </div>
+        <div style={{ fontSize: 11, color: T.textMuted, marginTop: 1 }}>{ev.title}</div>
+      </div>
+      <span style={{ marginLeft: "auto", fontSize: 11, color: T.textMuted }}>↗</span>
+    </button>
+  );
+}
+
 function EmailCard({ e, idx }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const c = CAT[e.category] || { color: "#94a3b8", bg: "#94a3b810", border: "#94a3b830" };
+  const c = CAT[e.category] || { color: "#64748b", bg: "#f8fafc", border: "#e2e8f0" };
   return (
     <div style={{
-      background: "#0d1117", border: `1px solid ${open ? c.border : "#1e293b"}`,
-      borderLeft: `3px solid ${c.color}`, borderRadius: 12, marginBottom: 9,
+      background: T.cardBg,
+      border: `1px solid ${open ? c.border : T.cardBorder}`,
+      borderLeft: `3px solid ${c.color}`,
+      borderRadius: 12, marginBottom: 8,
       overflow: "hidden", transition: "border-color 0.2s",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
       animation: `up 0.3s ease ${idx * 0.05}s both`,
     }}>
       <div onClick={() => setOpen(o => !o)} style={{ padding: "13px 16px", cursor: "pointer", display: "flex", gap: 10, alignItems: "flex-start" }}>
-        <span style={{ fontSize: 11, marginTop: 1, flexShrink: 0 }}>{IMP[e.importance]}</span>
+        <span style={{ fontSize: 11, marginTop: 2, flexShrink: 0 }}>{IMP[e.importance]}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 4, alignItems: "center" }}>
-            <span style={{ fontSize: 10, fontWeight: 700, color: c.color, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 100, padding: "2px 8px", whiteSpace: "nowrap" }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 5, alignItems: "center" }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: c.color, background: c.bg, border: `1px solid ${c.border}`, borderRadius: 100, padding: "2px 9px", whiteSpace: "nowrap" }}>
               {e.category}
             </span>
             {e.importance === "HIGH" && (
-              <span style={{ fontSize: 10, fontWeight: 700, color: "#ef4444", background: "#ef444410", border: "1px solid #ef444430", borderRadius: 100, padding: "2px 8px" }}>URGENT</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#dc2626", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 100, padding: "2px 9px" }}>URGENT</span>
+            )}
+            {e.calendarEvent && (
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 100, padding: "2px 9px" }}>📅 Invite</span>
             )}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", lineHeight: 1.4, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.subject}</div>
-          <div style={{ fontSize: 11, color: "#475569", fontFamily: "monospace" }}>{e.sender} · {fmt(e.date)}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary, lineHeight: 1.4, marginBottom: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.subject}</div>
+          <div style={{ fontSize: 11, color: T.textMuted, fontFamily: "monospace" }}>{e.sender} · {fmt(e.date)}</div>
         </div>
-        <span style={{ color: "#334155", fontSize: 10, flexShrink: 0, marginTop: 3, transition: "transform 0.2s", display: "inline-block", transform: open ? "rotate(180deg)" : "none" }}>▼</span>
+        <span style={{ color: T.textMuted, fontSize: 10, flexShrink: 0, marginTop: 4, transition: "transform 0.2s", display: "inline-block", transform: open ? "rotate(180deg)" : "none" }}>▼</span>
       </div>
 
       {open && (
-        <div style={{ padding: "0 16px 16px", borderTop: "1px solid #1a2332" }}>
-          <div style={{ marginTop: 12, fontSize: 13, color: "#94a3b8", lineHeight: 1.7, marginBottom: 12 }}>{e.summary}</div>
+        <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${T.divider}` }}>
+          <div style={{ marginTop: 12, fontSize: 13, color: T.textSecondary, lineHeight: 1.7, marginBottom: 12 }}>{e.summary}</div>
           <div style={{ padding: "9px 12px", background: c.bg, border: `1px solid ${c.border}`, borderRadius: 8, marginBottom: 10 }}>
             <div style={{ fontSize: 9, color: c.color, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>Why {e.importance} Priority</div>
-            <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.6 }}>{e.reason}</div>
+            <div style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.6 }}>{e.reason}</div>
           </div>
-          <div style={{ padding: "9px 12px", background: "#020817", border: "1px solid #1e293b", borderRadius: 8, marginBottom: e.draftReply ? 10 : 0 }}>
-            <div style={{ fontSize: 9, color: "#334155", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>Action</div>
-            <div style={{ fontSize: 13, color: "#e2e8f0", fontWeight: 500, lineHeight: 1.6 }}>→ {e.action}</div>
+          <div style={{ padding: "9px 12px", background: T.innerBg, border: `1px solid ${T.innerBorder}`, borderRadius: 8, marginBottom: e.draftReply ? 10 : 0 }}>
+            <div style={{ fontSize: 9, color: T.textMuted, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>Action</div>
+            <div style={{ fontSize: 13, color: T.textPrimary, fontWeight: 600, lineHeight: 1.6 }}>→ {e.action}</div>
           </div>
           {e.draftReply && (
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <div style={{ fontSize: 9, color: "#334155", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em" }}>Draft Reply</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, marginTop: 10 }}>
+                <div style={{ fontSize: 9, color: T.textMuted, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em" }}>Draft Reply</div>
                 <button onClick={() => { navigator.clipboard.writeText(e.draftReply); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-                  style={{ background: copied ? "#22c55e18" : "#1e293b", border: `1px solid ${copied ? "#22c55e40" : "#334155"}`, borderRadius: 5, padding: "3px 9px", fontSize: 10, color: copied ? "#22c55e" : "#94a3b8", cursor: "pointer", fontFamily: "monospace" }}>
+                  style={{ background: copied ? "#f0fdf4" : T.innerBg, border: `1px solid ${copied ? "#86efac" : T.innerBorder}`, borderRadius: 5, padding: "3px 10px", fontSize: 10, color: copied ? "#16a34a" : T.textSecondary, cursor: "pointer", fontFamily: "monospace", fontWeight: 600 }}>
                   {copied ? "✓ Copied" : "Copy"}
                 </button>
               </div>
-              <div style={{ background: "#020817", border: "1px solid #1e293b", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "#94a3b8", lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "monospace" }}>{e.draftReply}</div>
+              <div style={{ background: T.innerBg, border: `1px solid ${T.innerBorder}`, borderRadius: 8, padding: "10px 12px", fontSize: 12, color: T.textSecondary, lineHeight: 1.8, whiteSpace: "pre-wrap", fontFamily: "monospace" }}>{e.draftReply}</div>
             </div>
           )}
+          {e.calendarEvent && <CalendarButton ev={e.calendarEvent} />}
         </div>
       )}
     </div>
@@ -268,52 +354,53 @@ export default function WeeklyDigest() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;600;700&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0} body{background:#020817}
+        *{box-sizing:border-box;margin:0;padding:0} body{background:#f1f5f9}
         @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .fb{cursor:pointer;transition:all 0.15s;font-family:'Geist Mono',monospace;background:none}
-        ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+        .fb:hover{opacity:0.75}
+        ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px}
       `}</style>
-      <div style={{ minHeight: "100vh", background: "#020817", color: "#e2e8f0", padding: "30px 16px", fontFamily: "'Geist Mono', monospace" }}>
+      <div style={{ minHeight: "100vh", background: T.pageBg, color: T.textPrimary, padding: "30px 16px", fontFamily: "'Geist Mono', monospace" }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
 
           {/* Header */}
           <div style={{ marginBottom: 24, animation: "up 0.4s ease both" }}>
-            <div style={{ fontSize: 9, color: "#1e3a5f", letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 8 }}>
+            <div style={{ fontSize: 9, color: T.textMuted, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 8 }}>
               May 21 – May 27, 2026 · ashoori.bita@gmail.com
             </div>
-            <h1 style={{ fontFamily: "'Instrument Serif', serif", fontStyle: "italic", fontSize: 28, fontWeight: 400, color: "#e2e8f0", lineHeight: 1.1, marginBottom: 4 }}>
+            <h1 style={{ fontFamily: "'Instrument Serif', serif", fontStyle: "italic", fontSize: 28, fontWeight: 400, color: T.textPrimary, lineHeight: 1.1, marginBottom: 4 }}>
               7-Day Important Emails
             </h1>
-            <p style={{ fontSize: 10, color: "#334155" }}>{EMAILS.length} important emails · filtered & analyzed by Claude</p>
+            <p style={{ fontSize: 10, color: T.textMuted }}>{EMAILS.length} important emails · filtered & analyzed by Claude</p>
           </div>
 
           {/* Stats */}
           <div style={{ display: "flex", gap: 7, marginBottom: 22, flexWrap: "wrap", animation: "up 0.4s ease 0.08s both" }}>
             {[
-              { label: "Urgent", value: counts.high, color: "#ef4444" },
-              { label: "Job Search", value: counts.job, color: "#f97316" },
-              { label: "Volunteering", value: counts.vol, color: "#22c55e" },
-              { label: "Networking", value: counts.events, color: "#3b82f6" },
-              { label: "Security", value: counts.sec, color: "#ef4444" },
-              { label: "Drafts Ready", value: counts.drafts, color: "#6366f1" },
+              { label: "Urgent",      value: counts.high,   color: "#dc2626" },
+              { label: "Job Search",  value: counts.job,    color: "#ea6e1e" },
+              { label: "Volunteering",value: counts.vol,    color: "#16a34a" },
+              { label: "Networking",  value: counts.events, color: "#2563eb" },
+              { label: "Security",    value: counts.sec,    color: "#dc2626" },
+              { label: "Drafts Ready",value: counts.drafts, color: "#7c3aed" },
             ].map(s => (
-              <div key={s.label} style={{ flex: "1 1 65px", minWidth: 65, background: "#0d1117", border: "1px solid #1e293b", borderRadius: 10, padding: "9px 10px", textAlign: "center" }}>
+              <div key={s.label} style={{ flex: "1 1 65px", minWidth: 65, background: T.cardBg, border: `1px solid ${T.cardBorder}`, borderRadius: 10, padding: "9px 10px", textAlign: "center", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
                 <div style={{ fontSize: 19, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-                <div style={{ fontSize: 8, color: "#334155", textTransform: "uppercase", letterSpacing: "0.07em", marginTop: 3 }}>{s.label}</div>
+                <div style={{ fontSize: 8, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.07em", marginTop: 3 }}>{s.label}</div>
               </div>
             ))}
           </div>
 
           {/* ⚡ Action banner */}
-          <div style={{ background: "#f9731608", border: "1px solid #f9731625", borderRadius: 10, padding: "12px 14px", marginBottom: 18, animation: "up 0.4s ease 0.12s both" }}>
-            <div style={{ fontSize: 10, color: "#f97316", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, fontWeight: 700 }}>⚡ This Week's Top 3 Actions</div>
+          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "12px 14px", marginBottom: 18, animation: "up 0.4s ease 0.12s both", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <div style={{ fontSize: 10, color: "#b45309", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8, fontWeight: 700 }}>⚡ This Week's Top 3 Actions</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {[
                 "🔥 Reply to Bill @ Rephers about the BI Reporting role — apply today",
                 "🔴 Pick your WomenWhoCode Summit volunteer timing slot — event is next week",
                 "📅 Decide on Applied AI System Design Club — TOMORROW Thu May 28, 6:30 PM",
               ].map((a, i) => (
-                <div key={i} style={{ fontSize: 12, color: "#e2e8f0", lineHeight: 1.5 }}>→ {a}</div>
+                <div key={i} style={{ fontSize: 12, color: "#92400e", lineHeight: 1.5 }}>→ {a}</div>
               ))}
             </div>
           </div>
@@ -326,27 +413,27 @@ export default function WeeklyDigest() {
                 const active = filter === cat;
                 return (
                   <button key={cat} onClick={() => setFilter(cat)} className="fb"
-                    style={{ padding: "4px 10px", borderRadius: 100, fontSize: 9, background: active ? (cfg ? cfg.bg : "#1e293b") : "transparent", color: active ? (cfg ? cfg.color : "#e2e8f0") : "#334155", border: `1px solid ${active ? (cfg ? cfg.border : "#334155") : "#1e293b"}`, fontWeight: active ? 700 : 400 }}>
+                    style={{ padding: "4px 10px", borderRadius: 100, fontSize: 9, background: active ? (cfg ? cfg.bg : "#e2e8f0") : "transparent", color: active ? (cfg ? cfg.color : T.textPrimary) : T.textMuted, border: `1px solid ${active ? (cfg ? cfg.border : "#cbd5e1") : T.cardBorder}`, fontWeight: active ? 700 : 400 }}>
                     {cat}
                   </button>
                 );
               })}
             </div>
             <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
-              <span style={{ fontSize: 9, color: "#334155", textTransform: "uppercase", letterSpacing: "0.08em" }}>Priority:</span>
+              <span style={{ fontSize: 9, color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Priority:</span>
               {imps.map(imp => (
                 <button key={imp} onClick={() => setImpFilter(imp)} className="fb"
-                  style={{ padding: "3px 8px", borderRadius: 6, fontSize: 9, background: impFilter === imp ? "#1e293b" : "transparent", color: impFilter === imp ? "#e2e8f0" : "#334155", border: `1px solid ${impFilter === imp ? "#334155" : "#1e293b"}`, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  style={{ padding: "3px 8px", borderRadius: 6, fontSize: 9, background: impFilter === imp ? "#e2e8f0" : "transparent", color: impFilter === imp ? T.textPrimary : T.textMuted, border: `1px solid ${impFilter === imp ? "#cbd5e1" : T.cardBorder}`, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   {imp === "HIGH" ? "🔴 High" : imp === "MEDIUM" ? "🟡 Medium" : "All"}
                 </button>
               ))}
-              <span style={{ marginLeft: "auto", fontSize: 9, color: "#1e3a5f" }}>{filtered.length} shown</span>
+              <span style={{ marginLeft: "auto", fontSize: 9, color: T.textMuted }}>{filtered.length} shown</span>
             </div>
           </div>
 
           {filtered.map((e, i) => <EmailCard key={e.id} e={e} idx={i} />)}
 
-          <div style={{ textAlign: "center", marginTop: 24, fontSize: 9, color: "#1a2535", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+          <div style={{ textAlign: "center", marginTop: 24, fontSize: 9, color: T.textMuted, letterSpacing: "0.1em", textTransform: "uppercase" }}>
             Claude · Gmail · May 21–27, 2026
           </div>
         </div>
